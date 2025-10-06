@@ -1,0 +1,59 @@
+flowchart TD
+    Start([Cliente: POST /api/reservar]) --> Orq[Orquestador: Servicio de Reservas y Pagos]
+    
+    Orq --> Step1[Paso 1: Validar Datos de Solicitud]
+    Step1 -->|Datos Válidos| Step2[Paso 2: Verificar Usuario Existe]
+    Step1 -->|Datos Inválidos| FailValidation[❌ Error: Datos inválidos]
+    FailValidation --> EndFail1([Respuesta 400: Bad Request])
+    
+    Step2 -->|Usuario Existe| Step3[Paso 3: Verificar Disponibilidad de Entradas]
+    Step2 -->|Usuario No Existe| FailUser[❌ Error: Usuario no encontrado]
+    FailUser --> EndFail2([Respuesta 404: Usuario no encontrado])
+    
+    Step3 -->|Entradas Disponibles| Step4[Paso 4: Reservar Entradas en Redis<br/>DECR entradas_disponibles]
+    Step3 -->|Sin Disponibilidad| FailInventory[❌ Error: Sin entradas disponibles]
+    FailInventory --> EndFail3([Respuesta 409: Sold Out])
+    
+    Step4 -->|Reserva Exitosa| Step5[Paso 5: Procesar Pago]
+    Step5 -->|Pago Exitoso| Step6[Paso 6: Confirmar Reserva<br/>Guardar en MongoDB]
+    Step5 -->|Pago Fallido| Comp1[🔄 Compensación 1:<br/>Liberar Entradas en Redis<br/>INCR entradas_disponibles]
+    
+    Comp1 --> FailPayment[❌ Error: Pago rechazado]
+    FailPayment --> EndFail4([Respuesta 402: Payment Required])
+    
+    Step6 -->|Confirmación Exitosa| Step7[Paso 7: Actualizar Historial Usuario<br/>Push reserva_id a historial_compras]
+    Step6 -->|Fallo en Confirmación| Comp2[🔄 Compensación 2:<br/>1. Reembolsar Pago<br/>2. Liberar Entradas]
+    
+    Comp2 --> FailConfirm[❌ Error: Fallo al confirmar]
+    FailConfirm --> EndFail5([Respuesta 500: Internal Server Error])
+    
+    Step7 -->|Actualización Exitosa| Step8[Paso 8: Actualizar Evento<br/>Push reserva_id a reservas_activas]
+    Step7 -->|Fallo Actualización| Comp3[🔄 Compensación 3:<br/>1. Reembolsar Pago<br/>2. Liberar Entradas<br/>3. Eliminar Reserva]
+    
+    Comp3 --> FailUpdate[❌ Error: Fallo al actualizar historial]
+    FailUpdate --> EndFail6([Respuesta 500: Internal Server Error])
+    
+    Step8 -->|Éxito| Success[✅ Transacción SAGA Completada]
+    Step8 -->|Fallo| Comp4[🔄 Compensación 4:<br/>1. Reembolsar Pago<br/>2. Liberar Entradas<br/>3. Revertir Historial Usuario<br/>4. Eliminar Reserva]
+    
+    Comp4 --> FailEvent[❌ Error: Fallo al actualizar evento]
+    FailEvent --> EndFail7([Respuesta 500: Internal Server Error])
+    
+    Success --> EndSuccess([Respuesta 201: Reserva Creada<br/>Retorna: reserva_id, detalles])
+    
+    style Orq fill:#4A90E2,stroke:#2E5C8A,color:#fff
+    style Success fill:#4CAF50,stroke:#2E7D32,color:#fff
+    style FailValidation fill:#F44336,stroke:#C62828,color:#fff
+    style FailUser fill:#F44336,stroke:#C62828,color:#fff
+    style FailInventory fill:#F44336,stroke:#C62828,color:#fff
+    style FailPayment fill:#F44336,stroke:#C62828,color:#fff
+    style FailConfirm fill:#F44336,stroke:#C62828,color:#fff
+    style FailUpdate fill:#F44336,stroke:#C62828,color:#fff
+    style FailEvent fill:#F44336,stroke:#C62828,color:#fff
+    style Comp1 fill:#FF9800,stroke:#E65100,color:#fff
+    style Comp2 fill:#FF9800,stroke:#E65100,color:#fff
+    style Comp3 fill:#FF9800,stroke:#E65100,color:#fff
+    style Comp4 fill:#FF9800,stroke:#E65100,color:#fff
+    style Step4 fill:#9C27B0,stroke:#6A1B9A,color:#fff
+    style Step5 fill:#9C27B0,stroke:#6A1B9A,color:#fff
+    style Step6 fill:#9C27B0,stroke:#6A1B9A,color:#fff
