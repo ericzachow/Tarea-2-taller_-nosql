@@ -1,0 +1,51 @@
+graph TD
+    A[Cliente: POST /api/reservar] --> B[Orquestador]
+    B --> C[Handler 1: ValidadorDeDatos]
+    
+    C -->|Valida formato| D{Datos Validos?}
+    D -->|SI| E[Handler 2: ValidadorDeUsuario]
+    D -->|NO| F1[Error 400: Bad Request]
+    
+    E -->|Verifica existencia| G{Usuario Existe?}
+    G -->|SI| H[Handler 3: ValidadorDeInventario]
+    G -->|NO| F2[Error 404: Not Found]
+    
+    H -->|Consulta disponibilidad| I{Hay Entradas?}
+    I -->|SI| J[Handler 4: ProcesadorDePago]
+    I -->|NO| F3[Error 409: Sold Out]
+    
+    J -->|Procesa transaccion| K{Pago Exitoso?}
+    K -->|SI| L[Handler 5: ConfirmadorDeReserva]
+    K -->|NO| F4[Error 402: Payment Required]
+    
+    L -->|Crea registro| M{Reserva OK?}
+    M -->|SI| N[Handler 6: ActualizadorDeHistorial]
+    M -->|NO| F5[Error 500: Fallo Confirmacion]
+    
+    N -->|Actualiza datos| O{Historial OK?}
+    O -->|SI| P[Success: 201 Created]
+    O -->|NO| F6[Error 500: Fallo Actualizacion]
+    
+    F1 --> Z[Fin - Cadena Rota]
+    F2 --> Z
+    F3 --> Z
+    F4 --> Z
+    F5 --> Z
+    F6 --> Z
+    P --> Y[Fin - Transaccion Completa]
+    
+    style A fill:#e1f5ff,stroke:#01579b
+    style B fill:#b3e5fc,stroke:#0277bd
+    style C fill:#fff9c4,stroke:#f57f17
+    style E fill:#fff9c4,stroke:#f57f17
+    style H fill:#fff9c4,stroke:#f57f17
+    style J fill:#fff9c4,stroke:#f57f17
+    style L fill:#fff9c4,stroke:#f57f17
+    style N fill:#fff9c4,stroke:#f57f17
+    style P fill:#c8e6c9,stroke:#2e7d32
+    style F1 fill:#ffcdd2,stroke:#c62828
+    style F2 fill:#ffcdd2,stroke:#c62828
+    style F3 fill:#ffcdd2,stroke:#c62828
+    style F4 fill:#ffcdd2,stroke:#c62828
+    style F5 fill:#ffcdd2,stroke:#c62828
+    style F6 fill:#ffcdd2,stroke:#c62828
