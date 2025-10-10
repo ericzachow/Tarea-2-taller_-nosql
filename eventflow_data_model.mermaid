@@ -1,38 +1,163 @@
 erDiagram
-    USUARIO ||--o{ RESERVA : "realiza"
-    EVENTO ||--o{ RESERVA : "tiene"
-    
-    USUARIO {
-        ObjectId _id PK
-        string tipo_documento
-        string nro_documento_hash
-        string nombre
-        string apellido
-        string email_encrypted
-        array historial_compras_ref "Referencias a Reservas"
-        timestamp fecha_registro
+    /* Entidades Base del Diagrama Existente */
+    Pais {
+        string PaisId PK
+        string PaisNombre
+        string PaisImage
     }
     
-    EVENTO {
-        ObjectId _id PK
-        string nombre
-        ISODate fecha
-        string lugar
-        int aforo_total
-        int entradas_disponibles
-        array reservas_activas_ref "Referencias a Reservas"
-        string descripcion
-        decimal precio
+    Cliente {
+        string Clienteld PK
+        string ClienteNombre
+        string ClienteEmail
+        string Paisld FK
+        string PaisNombre
     }
     
-    RESERVA {
-        string reserva_id PK
-        ObjectId usuario_id FK
-        ObjectId evento_id FK
-        int cantidad_entradas
-        decimal monto_total
-        string estado "pendiente|confirmada|cancelada"
-        timestamp fecha_reserva
-        timestamp fecha_expiracion
-        string transaction_id
+    TipoEspectaculo {
+        string TipoEspectaculold PK
+        string TipoEspectaculoNomb
+        string TipoEspectaculoImage
     }
+    
+    Lugar {
+        string LugarId PK
+        string LugarNombre
+        string Paisld FK
+        string PaisNombre
+        string LugarImage
+        int LugarCapacidad
+        int LugarEspectaculoCant
+    }
+    
+    Sector {
+        string SectorId PK
+        string SectorNombre
+        string LugarId FK
+        int SectorCapacidadDi
+        int SectorCapacidadO
+        int SectorCapacidadM
+        decimal SectorPrecio
+    }
+    
+    Espectaculo {
+        string Espectaculold PK
+        string EspectaculoNombre
+        string EspectaculoDescripci
+        date EspectaculoDate
+        string EspectaculoImage
+        string EspectaculoPaisOrige
+        string EspectaculoPaisOrig
+        string LugarId FK
+        string LugarNombre
+        int EspectaculoCapacidad
+        string TipoEspectaculold FK
+        string TipoEspectaculoNomb
+    }
+    
+    /* Entidades de Gestión de Accesos */
+    Entrada {
+        string Entradald PK
+        date EntradaFecha
+        string Clienteld FK
+        string ClienteNombre
+        string Espectaculold FK
+        string EspectaculoNombre
+        date EspectaculoDate
+        string LugarId FK
+        string LugarNombre
+        string SectorId FK
+        string SectorNombre
+        decimal SectorPrecio
+        int SectorCapacidadDispo
+        string Paisld FK
+        string LugarPaisld FK
+        string LugarPaisNombre
+    }
+    
+    Invitacion {
+        string InvitacionId PK
+        string Clienteld FK
+        string ClienteNombre
+        string Espectaculold FK
+        string SectorId FK
+    }
+    
+    /* Nuevas Entidades del Segundo Enunciado */
+    Performance {
+        string PerformanceId PK
+        string Espectaculold FK
+        date PerformanceFecha
+        time PerformanceHora
+        string Estado
+        int CapacidadDisponible
+    }
+    
+    Noticia {
+        string NoticiaId PK
+        string Espectaculold FK
+        string NoticiaTitulo
+        text NoticiaTexto
+        date NoticiaFecha
+        string NoticiaPrincipalId FK
+    }
+    
+    Beneficio {
+        string BeneficioId PK
+        string TipoBeneficio
+        string Descripcion
+        decimal Precio
+        string LugarId FK
+        date FechaInicio
+        date FechaFin
+        string Estado
+    }
+    
+    Factura {
+        string FacturaId PK
+        string Clienteld FK
+        date FechaFactura
+        decimal TotalFactura
+        string Estado
+    }
+    
+    DetalleFactura {
+        string DetalleId PK
+        string FacturaId FK
+        string TipoProducto
+        string Descripcion
+        int Cantidad
+        decimal PrecioUnitario
+        decimal Subtotal
+        string Espectaculold FK
+    }
+    
+    /* Relaciones */
+    Cliente ||--o{ Entrada : compra
+    Cliente ||--o{ Invitacion : recibe
+    Cliente ||--o{ Factura : genera
+    
+    Pais ||--o{ Cliente : pertenece
+    Pais ||--o{ Lugar : ubicado_en
+    Pais ||--o{ Espectaculo : origen
+    
+    TipoEspectaculo ||--o{ Espectaculo : categoriza
+    
+    Lugar ||--o{ Espectaculo : sede
+    Lugar ||--o{ Sector : contiene
+    Lugar ||--o{ Beneficio : ofrece
+    
+    Espectaculo ||--o{ Entrada : corresponde
+    Espectaculo ||--o{ Invitacion : incluye
+    Espectaculo ||--o{ Performance : tiene
+    Espectaculo ||--o{ Noticia : publica
+    Espectaculo ||--o{ DetalleFactura : vende_productos
+    
+    Sector ||--o{ Entrada : asigna
+    Sector ||--o{ Invitacion : asigna
+    
+    Performance ||--o{ Entrada : programada_para
+    
+    Noticia ||--o{ Noticia : evoluciona
+    
+    Factura ||--o{ DetalleFactura : detalla
