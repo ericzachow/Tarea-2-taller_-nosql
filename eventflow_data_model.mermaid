@@ -1,5 +1,5 @@
 erDiagram
-    /* Entidades Base del Diagrama Existente */
+    %% Entidades Base del Diagrama Existente %%
     Pais {
         string PaisId PK
         string PaisNombre
@@ -55,7 +55,7 @@ erDiagram
         string TipoEspectaculoNomb
     }
     
-    /* Entidades de Gestión de Accesos */
+    %% Entidades de Gestión de Accesos %%
     Entrada {
         string Entradald PK
         date EntradaFecha
@@ -83,7 +83,7 @@ erDiagram
         string SectorId FK
     }
     
-    /* Nuevas Entidades del Segundo Enunciado */
+   %% Nuevas Entidades del Segundo Enunciado %%
     Performance {
         string PerformanceId PK
         string Espectaculold FK
@@ -132,7 +132,7 @@ erDiagram
         string Espectaculold FK
     }
     
-    /* Relaciones */
+    %% Relaciones %%
     Cliente ||--o{ Entrada : compra
     Cliente ||--o{ Invitacion : recibe
     Cliente ||--o{ Factura : genera
