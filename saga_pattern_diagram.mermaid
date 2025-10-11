@@ -1,8 +1,137 @@
-Error al representar el código incrustado
+erDiagram
+    PAIS {
+        int PaisId PK
+        string PaisNombre
+        string PaisImage
+    }
 
-Error de análisis en la línea 5:
-...t NoticiaPadreId FK}ENTRADA {int En
-----------------------^
-Se esperaba 'EOF', 'ESPACIO', 'NUEVA LÍNEA', 'título', 'acc_title', 'acc_descr', 'acc_descr_multiline_value', 'direction_tb', 'direction_bt', 'direction_rl', 'direction_lr', 'CLASSDEF', 'UNICODE_TEXT', 'CLASS', 'STYLE', 'ENTITY_NAME', se obtuvo '}'
+    CLIENTE {
+        int ClienteId PK
+        string ClienteNombre
+        string ClienteEmail
+        int PaisId FK
+    }
 
-Para obtener más información, consulte https://docs.github.com/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams#creating-mermaid-diagrams
+    LUGAR {
+        int LugarId PK
+        string LugarNombre
+        int PaisId FK
+        int LugarCapacidad
+        int LugarEspectaculoCant
+        string LugarImage
+    }
+
+    SECTOR {
+        int SectorId PK
+        int LugarId FK
+        string SectorNombre
+        int SectorPrecio
+        int SectorCapacidadDiurna
+        int SectorCapacidadNocturna
+    }
+
+    TIPOESPECTACULO {
+        int TipoEspectaculoId PK
+        string TipoEspectaculoNomb
+        string TipoEspectaculoImage
+    }
+
+    ESPECTACULO {
+        int EspectaculoId PK
+        string EspectaculoNombre
+        string EspectaculoDescrpici
+        date EspectaculoDate
+        string EspectaculoImage
+        int EspectaculoPaisOrigenId FK "PaisId FK (Origen)"
+        int LugarId FK
+        int TipoEspectaculoId FK
+        int EspectaculoCapacidad
+    }
+
+    PERFORMANCE {
+        int PerformanceId PK
+        int EspectaculoId FK
+        datetime PerformanceFechaHora
+        int DuracionMinutos
+        string Estado
+    }
+
+    BENEFICIO {
+        int BeneficioId PK
+        int LugarId FK "Corregido a LugarId"
+        string BeneficioDescripcion
+        decimal BeneficioCosto
+        date BeneficioVigenciaDesde
+        date BeneficioVigenciaHasta
+    }
+
+    NOTICIA {
+        int NoticiaId PK
+        int EspectaculoId FK
+        date NoticiaFecha
+        string NoticiaTexto
+        int NoticiaPadreId FK "Relación Recursiva (Principal)"
+    }
+
+    ENTRADA {
+        int EntradaId PK
+        datetime EntradaFecha
+        int ClienteId FK
+        int PerformanceId FK
+        int SectorId FK
+        decimal EntradaPrecio
+        string EntradaEstado
+    }
+
+    INVITACION {
+        int InvitacionId PK
+        int ClienteId FK
+        int EspectaculoId FK
+        datetime FechaInvitacion
+        string CodigoInvitacion
+    }
+
+    FACTURA {
+        int FacturaId PK
+        int ClienteId FK
+        date FacturaFecha
+        decimal FacturaTotal
+        string FacturaEstado
+    }
+
+    FACTURA_LINEA {
+        int FacturaLineaId PK
+        int FacturaId FK
+        int EntradaId FK NULL
+        int BeneficioId FK NULL
+        decimal PrecioUnitario
+        int Cantidad
+        decimal Subtotal
+    }
+
+    %% Relaciones (1:N)
+    PAIS ||--o{ CLIENTE : "tiene"
+    PAIS ||--o{ LUGAR : "ubicado en"
+    PAIS ||--o{ ESPECTACULO : "origen"
+
+    LUGAR ||--o{ SECTOR : "contiene"
+    LUGAR ||--o{ ESPECTACULO : "alberga"
+    LUGAR ||--o{ BENEFICIO : "ofrece" %% Nueva relación corregida
+
+    TIPOESPECTACULO ||--o{ ESPECTACULO : "categoria"
+    ESPECTACULO ||--o{ PERFORMANCE : "tiene"
+    ESPECTACULO ||--o{ NOTICIA : "publica"
+    
+    %% Relación Recursiva en NOTICIA
+    NOTICIA ||--o{ NOTICIA : "evolucion de"
+
+    PERFORMANCE ||--o{ ENTRADA : "genera"
+    CLIENTE ||--o{ ENTRADA : "compra"
+
+    CLIENTE ||--o{ INVITACION : "recibe"
+    ESPECTACULO ||--o{ INVITACION : "genera"
+
+    CLIENTE ||--o{ FACTURA : "recibe"
+    FACTURA ||--o{ FACTURA_LINEA : "contiene"
+    ENTRADA o|--o{ FACTURA_LINEA : "puede ser"
+    BENEFICIO o|--o{ FACTURA_LINEA : "puede ser"
