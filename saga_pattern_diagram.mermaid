@@ -1,79 +1,8 @@
-erDiagram
-date NoticiaFecha
-string NoticiaTexto
-int NoticiaPadreId FK
-}
+Error al representar el código incrustado
 
+Error de análisis en la línea 5:
+...t NoticiaPadreId FK}ENTRADA {int En
+----------------------^
+Se esperaba 'EOF', 'ESPACIO', 'NUEVA LÍNEA', 'título', 'acc_title', 'acc_descr', 'acc_descr_multiline_value', 'direction_tb', 'direction_bt', 'direction_rl', 'direction_lr', 'CLASSDEF', 'UNICODE_TEXT', 'CLASS', 'STYLE', 'ENTITY_NAME', se obtuvo '}'
 
-ENTRADA {
-int EntradaId PK
-datetime EntradaFecha
-int ClienteId FK
-int PerformanceId FK
-int SectorId FK
-decimal EntradaPrecio
-string EntradaEstado
-}
-
-
-INVITACION {
-int InvitacionId PK
-int ClienteId FK
-int EspectaculoId FK
-datetime FechaInvitacion
-string CodigoInvitacion
-}
-
-
-FACTURA {
-int FacturaId PK
-int ClienteId FK
-date FacturaFecha
-decimal FacturaTotal
-string FacturaEstado
-}
-
-
-FACTURA_LINEA {
-int FacturaLineaId PK
-int FacturaId FK
-int EntradaId FK NULL
-int BeneficioId FK NULL
-decimal PrecioUnitario
-int Cantidad
-decimal Subtotal
-}
-
-
-%% Relaciones (1:N)
-PAIS ||--o{ CLIENTE : "tiene"
-PAIS ||--o{ LUGAR : "ubicado en"
-PAIS ||--o{ ESPECTACULO : "origen"
-
-
-LUGAR ||--o{ SECTOR : "contiene"
-LUGAR ||--o{ ESPECTACULO : "alberga"
-
-
-TIPOESPECTACULO ||--o{ ESPECTACULO : "categoria"
-ESPECTACULO ||--o{ PERFORMANCE : "tiene"
-ESPECTACULO ||--o{ BENEFICIO : "ofrece"
-ESPECTACULO ||--o{ NOTICIA : "publica"
-
-
-PERFORMANCE ||--o{ ENTRADA : "genera"
-CLIENTE ||--o{ ENTRADA : "compra"
-
-
-CLIENTE ||--o{ INVITACION : "recibe"
-ESPECTACULO ||--o{ INVITACION : "genera"
-
-
-CLIENTE ||--o{ FACTURA : "recibe"
-FACTURA ||--o{ FACTURA_LINEA : "contiene"
-ENTRADA ||--o{ FACTURA_LINEA : "puede ser"
-BENEFICIO ||--o{ FACTURA_LINEA : "puede ser"
-
-
-%% Cardinalidades y notas
-%% 1 Lugar tiene N Sectores; 1 Espectaculo puede tener N Performances (funciones)
+Para obtener más información, consulte https://docs.github.com/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams#creating-mermaid-diagrams
