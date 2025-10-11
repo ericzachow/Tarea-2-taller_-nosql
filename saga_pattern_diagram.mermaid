@@ -25,7 +25,7 @@ erDiagram
         int SectorId PK
         int LugarId FK
         string SectorNombre
-        int SectorPrecio
+        float SectorPrecio
         int SectorCapacidadDiurna
         int SectorCapacidadNocturna
     }
@@ -42,7 +42,7 @@ erDiagram
         string EspectaculoDescrpici
         date EspectaculoDate
         string EspectaculoImage
-        int EspectaculoPaisOrigenId FK "PaisId FK (Origen)"
+        int EspectaculoPaisOrigenId FK "Origen"
         int LugarId FK
         int TipoEspectaculoId FK
         int EspectaculoCapacidad
@@ -58,9 +58,9 @@ erDiagram
 
     BENEFICIO {
         int BeneficioId PK
-        int LugarId FK "Corregido a LugarId"
+        int LugarId FK 
         string BeneficioDescripcion
-        decimal BeneficioCosto
+        float BeneficioCosto
         date BeneficioVigenciaDesde
         date BeneficioVigenciaHasta
     }
@@ -70,7 +70,7 @@ erDiagram
         int EspectaculoId FK
         date NoticiaFecha
         string NoticiaTexto
-        int NoticiaPadreId FK "Relación Recursiva (Principal)"
+        int NoticiaPadreId FK "Recursiva"
     }
 
     ENTRADA {
@@ -79,7 +79,7 @@ erDiagram
         int ClienteId FK
         int PerformanceId FK
         int SectorId FK
-        decimal EntradaPrecio
+        float EntradaPrecio
         string EntradaEstado
     }
 
@@ -95,28 +95,28 @@ erDiagram
         int FacturaId PK
         int ClienteId FK
         date FacturaFecha
-        decimal FacturaTotal
+        float FacturaTotal
         string FacturaEstado
     }
 
     FACTURA_LINEA {
         int FacturaLineaId PK
         int FacturaId FK
-        int EntradaId FK NULL
-        int BeneficioId FK NULL
-        decimal PrecioUnitario
+        int EntradaId FK
+        int BeneficioId FK
+        float PrecioUnitario
         int Cantidad
-        decimal Subtotal
+        float Subtotal
     }
 
-    %% Relaciones (1:N)
+    %% RELACIONES DEFINIDAS
     PAIS ||--o{ CLIENTE : "tiene"
     PAIS ||--o{ LUGAR : "ubicado en"
     PAIS ||--o{ ESPECTACULO : "origen"
 
     LUGAR ||--o{ SECTOR : "contiene"
     LUGAR ||--o{ ESPECTACULO : "alberga"
-    LUGAR ||--o{ BENEFICIO : "ofrece" %% Nueva relación corregida
+    LUGAR ||--o{ BENEFICIO : "ofrece" 
 
     TIPOESPECTACULO ||--o{ ESPECTACULO : "categoria"
     ESPECTACULO ||--o{ PERFORMANCE : "tiene"
@@ -133,5 +133,7 @@ erDiagram
 
     CLIENTE ||--o{ FACTURA : "recibe"
     FACTURA ||--o{ FACTURA_LINEA : "contiene"
-    ENTRADA o|--o{ FACTURA_LINEA : "puede ser"
-    BENEFICIO o|--o{ FACTURA_LINEA : "puede ser"
+    
+    %% Opcionalidad (NULL en la FK) se maneja en la relación: |o--o| (uno a cero o uno)
+    ENTRADA o|--o{ FACTURA_LINEA : "relaciona"
+    BENEFICIO o|--o{ FACTURA_LINEA : "relaciona"
